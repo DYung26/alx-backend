@@ -73,7 +73,7 @@ class Server:
         return {
             'page_size': len(data), 'page': page,
             'data': data,
-            'next_page': page+1 if self.get_page(page+1, page_size) else None,
-            'prev_page': page-1 if page-1 != 0 else None,
-            'total_pages': math.ceil(len(self.dataset())/page_size)
+            'next_page': page + 1 if len(data) == page_size else None,
+            'prev_page': page - 1 if page > 0 else None,
+            'total_pages': math.ceil(len(self.dataset()) / page_size)
         }
