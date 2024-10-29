@@ -66,14 +66,42 @@ class Server:
         assert isinstance(page_size, int) and page_size > 0
         dataset = self.dataset()
         start_idx, end_idx = index_range(page, page_size)
-        return dataset[start_idx:end_idx] if start_idx < len(dataset) else []
+        return dataset[start_idx:end_idx] if start_idx <= len(dataset) else []
 
     def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict[str, int]:
+        """
+        Retrieve hypermedia pagination data for a specific page.
+
+        This method fetches a page of items from the dataset and returns a
+        dictionary containing pagination details, including the current page,
+        the number of items per page, the data for the current page, and
+        links to the next and previous pages if applicable.
+
+        Args:
+            page (int): The page number to retrieve (1-based index, must be >
+            0).
+            page_size (int): The number of items per page (must be > 0).
+
+        Returns:
+            Dict[str, int]: A dictionary containing:
+                - 'page_size' (int): The number of items on the current page.
+                - 'page' (int): The current page number.
+                - 'data' (List): The items for the current page.
+                - 'next_page' (int or None): The next page number if it exists;
+                otherwise, None.
+                - 'prev_page' (int or None): The previous page number if it
+                exists; otherwise, None.
+                - 'total_pages' (int): The total number of pages available in
+                the dataset.
+
+        Raises:
+            AssertionError: If `page` or `page_size` are not positive integers.
+        """
         data = self.get_page(page, page_size)
         return {
             'page_size': len(data), 'page': page,
             'data': data,
             'next_page': page + 1 if len(data) == page_size else None,
-            'prev_page': page - 1 if page > 0 else None,
+            'prev_page': page - 1 if page != 1 else None,
             'total_pages': math.ceil(len(self.dataset()) / page_size)
         }
