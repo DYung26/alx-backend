@@ -1,67 +1,47 @@
-#!/usr/bin/env python3
-"""
-This module provides the LRUCache class, a caching system with a
-Least Recently Used (LRU) eviction policy. LRUCache inherits from
-BaseCaching and removes the least recently used item when the cache
-exceeds its maximum capacity.
-"""
+#!/usr/bin/python3
+''' LRU Caching: Create a class LRUCache that inherits from BaseCaching
+                 and is a caching system
+'''
 
-from collections import OrderedDict
-from base_caching import BaseCaching
+BaseCaching = __import__('base_caching').BaseCaching
 
 
 class LRUCache(BaseCaching):
-    """
-    LRUCache class that inherits from BaseCaching.
-    Implements a Least Recently Used (LRU) caching policy, discarding
-    the least recently accessed entry when the cache exceeds the MAX_ITEMS
-    limit.
-    """
+    ''' An LRU Cache.
+        Inherits all behaviors from BaseCaching except, upon any attempt to
+        add an entry to the cache when it is at max capacity (as specified by
+        BaseCaching.MAX_ITEMS), it discards the least recently used entry to
+        accommodate for the new one.
+        Attributes:
+          __init__ - method that initializes class instance
+          put - method that adds a key/value pair to cache
+          get - method that retrieves a key/value pair from cache '''
 
     def __init__(self):
-        """
-        Initialize the LRUCache instance and set up an OrderedDict
-        for cache_data to track the order of item access.
-        """
+        ''' Initialize class instance. '''
         super().__init__()
-        self.cache_data = OrderedDict()
+        self.keys = []
 
     def put(self, key, item):
-        """
-        Add an item to the cache with the specified key. If adding
-        the item causes the cache to exceed MAX_ITEMS, the least
-        recently accessed entry is removed from the cache.
-
-        Args:
-            key: The key under which the item will be stored.
-            item: The value to store in the cache.
-
-        Returns:
-            None
-        """
-        if key is None or item is None:
-            return
-        if key not in self.cache_data:
-            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
-                lru_key, _ = self.cache_data.popitem(last=False)
-                print("DISCARD:", lru_key)
+        ''' Add key/value pair to cache data.
+            If cache is at max capacity (specified by BaseCaching.MAX_ITEMS),
+            discard least recently used entry in cache to accommodate new
+            entry. '''
+        if key is not None and item is not None:
             self.cache_data[key] = item
-            self.cache_data.move_to_end(key, last=False)
-        else:
-            self.cache_data[key] = item
+            if key not in self.keys:
+                self.keys.append(key)
+            else:
+                self.keys.append(self.keys.pop(self.keys.index(key)))
+            if len(self.keys) > BaseCaching.MAX_ITEMS:
+                discard = self.keys.pop(0)
+                del self.cache_data[discard]
+                print('DISCARD: {:s}'.format(discard))
 
     def get(self, key):
-        """
-        Retrieve an item from the cache by key, marking it as
-        recently accessed if it exists in the cache.
-
-        Args:
-            key: The key for the item to retrieve.
-
-        Returns:
-            The value associated with the specified key, or None
-            if the key is not in the cache.
-        """
+        ''' Return value stored in `key` key of cache.
+            If key is None or does not exist in cache, return None. '''
         if key is not None and key in self.cache_data:
-            self.cache_data.move_to_end(key, last=False)
-        return self.cache_data.get(key, None)
+            self.keys.append(self.keys.pop(self.keys.index(key)))
+            return self.cache_data[key]
+        return None
