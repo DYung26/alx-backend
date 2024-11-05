@@ -22,12 +22,11 @@ class Config:
         TIMEZONE (str): Default timezone for the application.
     """
     LANGUAGES = ["en", "fr"]
-    TIMEZONE = "UTC"
 
 
 app.config.from_object(Config)
 app.config['BABEL_DEFAULT_LOCALE'] = Config.LANGUAGES[0]
-app.config['BABEL_DEFAULT_TIMEZONE'] = Config.TIMEZONE
+app.config['BABEL_DEFAULT_TIMEZONE'] = "UTC"
 
 if __name__ == "__main__":
     """
